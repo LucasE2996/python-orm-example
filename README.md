@@ -15,7 +15,7 @@ log_by_day:
 
 ```sql
 CREATE VIEW log_by_day AS
-    select distinct to_char(time,'MM-DD-YYYY') as day, count(status) as sum, status
+    select distinct to_char(time,'Month DD, YYYY') as day, count(status) as sum, status
     from log
     where status like '%200%'
     group by day, status;
