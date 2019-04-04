@@ -22,12 +22,26 @@ def get_top_3_authors():
     print('"' + str(i[0]) + '" - ' + str(i[1]) + ' views')
   db.close()
 
-def add_new(content):
-  """Add a post to the 'database' with the current timestamp."""
+def get_one_percent_errors():
+  """Return days in which errors are more than 1% of requests  from the 'database'."""
   db = psycopg2.connect(database=DBNAME)
   c = db.cursor()
-  c.execute("insert into post values ('%s')" % content)
-  db.commit()
+  c.execute(
+    """SELECT 
+        a.day,  
+        (
+            (SELECT sum(b.sum) from log_by_day as b where status like '%404%' and b.day=a.day) * 100
+            / (SELECT sum(c.sum) from log_by_day as c WHERE status LIKE '%200%' and c.day=a.day)
+        ) as sum_avg
+      FROM log_by_day a
+      WHERE (
+              (SELECT sum(b.sum) from log_by_day as b where status like '%404%' and b.day=a.day) * 100
+              / (SELECT sum(c.sum) from log_by_day as c WHERE status LIKE '%200%' and c.day=a.day)
+          ) > 1
+      GROUP BY a.day;"""
+)
+  for i in c.fetchall():
+    print('"' + str(i[0]) + '" - ' + str(i[1]) + '% errors')
   db.close()
 
 def main():
@@ -40,6 +54,11 @@ def main():
   print('------ 3  MOST POPULAR AUTHORS ------')
   print('-------------------------------------')
   get_top_3_authors()
+  print('\n')
+  print('-------------------------------------')
+  print('-- DAYS WITH MORE THAN 1% OF ERRORS --')
+  print('-------------------------------------')
+  get_one_percent_errors()
   print('\n')
 
 main()
