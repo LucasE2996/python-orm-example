@@ -1,4 +1,4 @@
-# "Database code" for the DB Forum.
+#!/usr/bin/env python
 
 import psycopg2
 
@@ -61,4 +61,5 @@ def main():
   get_one_percent_errors()
   print('\n')
 
-main()
+if '__name__' == '__main__':
+  main()
