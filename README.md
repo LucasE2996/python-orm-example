@@ -11,15 +11,6 @@ create view views_sum as select distinct count(log.time) as num, articles.author
     order by num desc;
 ```
 
-log_by_day:
-
-```sql
-CREATE VIEW log_by_day AS
-    select distinct to_char(time,'Month DD, YYYY') as day, count(status) as sum, status
-    from log
-    group by day, status;
-```
-
 Then run:
 
 ```console
