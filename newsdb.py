@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import psycopg2
+import datetime
 
 DBNAME = "news"
 
@@ -10,10 +11,10 @@ def get_top_3_articles():
     db = psycopg2.connect(database=DBNAME)
     c = db.cursor()
     c.execute("""select distinct count(log.time) as num, articles.title
-      from log, articles
-      where log.path like CONCAT('/article/', articles.slug)
-      group by title
-      order by num desc LIMIT 3;""")
+        from log, articles
+        where log.path like CONCAT('/article/', articles.slug)
+        group by title
+        order by num desc LIMIT 3;""")
     for i in c.fetchall():
         print('"' + str(i[1]) + '" - ' + str(i[0]) + ' views')
     db.close()
@@ -24,10 +25,10 @@ def get_top_3_authors():
     db = psycopg2.connect(database=DBNAME)
     c = db.cursor()
     c.execute("""select distinct authors.name, sum(num) as total_views
-      from views_sum
-      join authors on views_sum.author_id = authors.id
-      group by authors.name
-      order by total_views desc LIMIT 3;""")
+        from views_sum
+        join authors on views_sum.author_id = authors.id
+        group by authors.name
+        order by total_views desc LIMIT 3;""")
     for i in c.fetchall():
         print('"' + str(i[0]) + '" - ' + str(i[1]) + ' views')
     db.close()
@@ -40,31 +41,17 @@ def get_one_percent_errors():
     """
     db = psycopg2.connect(database=DBNAME)
     c = db.cursor()
-    c.execute("""SELECT a.day,
-        (
-            (SELECT sum(b.sum)
-              from log_by_day as b
-              where status like '%404%'
-              and b.day=a.day) * 100
-            / (SELECT sum(c.sum)
-              from log_by_day as c
-              WHERE status LIKE '%200%'
-              and c.day=a.day)
-        ) as sum_avg
-      FROM log_by_day a
-      WHERE (
-              (SELECT sum(b.sum)
-                from log_by_day as b
-                where status like '%404%'
-                and b.day=a.day) * 100
-              / (SELECT sum(c.sum)
-              from log_by_day as c
-              WHERE status LIKE '%200%'
-              and c.day=a.day)
-          ) > 1
-      GROUP BY a.day;""")
+    c.execute("""SELECT time::date, count(status) AS total,
+        count(case when status != '200 OK' then 1 else null end) AS error
+        FROM log
+        GROUP BY time::date;""")
     for i in c.fetchall():
-        print('"' + str(i[0]) + '" - ' + str(i[1]) + '% errors')
+        day = str(i[0])
+        totalRecords = i[1]
+        totalErrors = i[2]
+        percentage = (totalErrors * 100) / totalRecords
+        if (percentage > 1):
+            print(formatDate(day) + ' - ' + str(percentage) + '%')
     db.close()
 
 
@@ -85,6 +72,10 @@ def main():
     get_one_percent_errors()
     print('\n')
 
+
+def formatDate(date):
+    objDate = datetime.strptime(date, '%Y-%m-%/d')
+    return datetime.strftime(objDate, '%b %d, %Y')
 
 if __name__ == "__main__":
     main()
