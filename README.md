@@ -1,18 +1,30 @@
-# NANODEGREE PROJECT 3
+<h1 align="center">Welcome to Python ORM simple example 👋</h1>
+<p>
+  <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000" />
+  <a href="https://twitter.com/lucashwwt" target="_blank">
+    <img alt="Twitter: lucashwwt" src="https://img.shields.io/twitter/follow/lucashwwt.svg?style=social" />
+  </a>
+</p>
 
-To run first create the following views:
+> This projet is an example of how to interact with database through an ORM in python. Also this project is one of the projects of Udacity's Nanodegree Fullstack.
 
-views_sum:
+## Usage
 
-```sql
-create view views_sum as select distinct count(log.time) as num, articles.author as author_id, title
-    from log join articles on log.path like CONCAT('/article/', articles.slug)
-    group by title, author_id
-    order by num desc;
+```sh
+python newsdb.py
 ```
 
-Then run:
+## Author
 
-```console
-$ python newsdb.py
-```
+👤 **Lucas Rosa**
+
+* Website: https://codepen.io/Lucas-Rosa/
+* Twitter: [@lucashwwt](https://twitter.com/lucashwwt)
+* Github: [@LucasE2996](https://github.com/LucasE2996)
+
+## Show your support
+
+Give a ⭐️ if this project helped you!
+
+***
+_This README was generated with ❤️ by [readme-md-generator](https://github.com/kefranabg/readme-md-generator)_
